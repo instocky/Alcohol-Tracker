@@ -314,19 +314,25 @@ body {
 }
 
 .quick-add .qa-plus {
-  width: var(--tap);
-  height: var(--tap);
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--fg);
+  background: var(--fg-muted);
   color: #fff;
   border: none;
-  font-size: 18px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.1s;
+  transition: transform 0.1s, background 0.15s;
   flex-shrink: 0;
+}
+
+.quick-add .qa-plus:hover {
+  background: var(--fg);
 }
 
 .quick-add .qa-plus:active {
@@ -423,13 +429,16 @@ body {
 .entries .entry .rm {
   width: 22px;
   height: 22px;
-  background: transparent;
+  background: var(--fg-muted);
   border: none;
-  color: var(--fg-faint);
+  color: #fff;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: background 0.15s;
 }
 
 .entries .entry .rm:hover {
