@@ -104,27 +104,57 @@ export function renderPresets(): PresetsSectionHandle {
     abvInp.value = String(preset.abv);
 
     // Options list editor
+    const optsHead = document.createElement('div');
+    optsHead.className = 'opts-head';
     const optsLbl = document.createElement('div');
     optsLbl.className = 'editor-lbl';
     optsLbl.textContent = 'Объёмы (мл)';
+    const addOpt = document.createElement('button');
+    addOpt.type = 'button';
+    addOpt.className = 'opt-add-icon';
+    addOpt.setAttribute('aria-label', 'Добавить объём');
+    addOpt.title = 'Добавить объём';
+    addOpt.innerHTML =
+      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">' +
+      '<path d="M12 5v14M5 12h14"/>' +
+      '</svg>';
+    optsHead.append(optsLbl, addOpt);
+
     const optsList = document.createElement('div');
     optsList.className = 'opts-list';
     const optsInputs: HTMLInputElement[] = [];
-    for (const o of preset.options) {
+
+    function appendOptRow(initialValue: number): HTMLInputElement {
       const row = document.createElement('div');
       row.className = 'opt-row';
       const inp = document.createElement('input');
       inp.type = 'number';
       inp.min = '1';
       inp.step = '1';
-      inp.value = String(o.volume_ml);
+      inp.value = String(initialValue);
       const lbl = document.createElement('span');
       lbl.className = 'opt-lbl';
-      lbl.textContent = o.label;
+      lbl.textContent = `${initialValue} мл`;
+      // ponytail: live-sync "X мл" label to input value
+      inp.addEventListener('input', () => {
+        const v = Math.max(1, Math.round(Number(inp.value) || 1));
+        lbl.textContent = `${v} мл`;
+      });
       row.append(inp, lbl);
       optsInputs.push(inp);
       optsList.append(row);
+      return inp;
     }
+
+    for (const o of preset.options) {
+      appendOptRow(o.volume_ml);
+    }
+
+    addOpt.addEventListener('click', () => {
+      const inp = appendOptRow(50);
+      inp.focus();
+      inp.select();
+    });
 
     // Actions
     const actions = document.createElement('div');
@@ -158,16 +188,15 @@ export function renderPresets(): PresetsSectionHandle {
     save.addEventListener('click', async () => {
       const abv = Number(abvInp.value);
       if (!Number.isFinite(abv) || abv < 0 || abv > 100) return;
-      const newOpts = optsInputs.map((inp, i) => {
+      const newOpts = optsInputs.map((inp) => {
         const v = Math.max(1, Math.round(Number(inp.value) || 1));
-        const label = preset.options[i]?.label ?? `${v} мл`;
-        return { volume_ml: v, label };
+        return { volume_ml: v, label: `${v} мл` };
       });
       await onSave({ ...preset, abv, options: newOpts });
     });
     actions.append(cancel, save);
 
-    wrap.append(nameLbl, nameInp, abvLbl, abvInp, optsLbl, optsList, actions);
+    wrap.append(nameLbl, nameInp, abvLbl, abvInp, optsHead, optsList, actions);
     return wrap;
   }
 
