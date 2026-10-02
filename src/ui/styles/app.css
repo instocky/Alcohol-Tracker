@@ -32,9 +32,66 @@ body {
   min-height: 0;
 }
 
-.boot {
-  padding: 24px 14px;
-  color: var(--fg-muted);
+.screen {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.screen.is-active {
+  display: flex;
+}
+
+.placeholder {
+  padding: 32px 16px;
   text-align: center;
-  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.placeholder .big {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 8px;
+}
+
+.placeholder .small {
+  font-size: 12px;
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+
+.nav button {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 10px 0;
+  cursor: pointer;
+  color: var(--fg-muted);
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border-top: 2px solid transparent;
+}
+
+.nav button.is-on {
+  color: var(--fg);
+  border-top-color: var(--accent);
+}
+
+.nav button .ic {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.nav button .lbl {
+  font-size: 11px;
 }
