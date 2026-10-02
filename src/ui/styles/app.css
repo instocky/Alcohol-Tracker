@@ -248,3 +248,119 @@ body {
   padding: 14px;
   background: var(--bg);
 }
+
+/* === Quick-add card === */
+
+.quick-add {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.quick-add .qa-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  gap: 10px;
+}
+
+.quick-add .qa-row:last-child {
+  border-bottom: none;
+}
+
+.quick-add .qa-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  min-width: 0;
+}
+
+.quick-add .qa-emoji {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  border-radius: 8px;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.quick-add .qa-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.quick-add .qa-title .deg {
+  color: var(--fg-faint);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
+.quick-add .qa-sub {
+  font-size: 11px;
+  color: var(--fg-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.quick-add .qa-plus {
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: 50%;
+  background: var(--fg);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+  flex-shrink: 0;
+}
+
+.quick-add .qa-plus:active {
+  transform: scale(0.92);
+}
+
+.quick-add .qa-plus.is-debounced {
+  opacity: 0.4;
+}
+
+.qa-toggle {
+  display: inline-flex;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1px;
+}
+
+.qa-toggle button {
+  appearance: none;
+  border: none;
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  color: var(--fg-muted);
+  padding: 2px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.qa-toggle button.is-on {
+  background: var(--surface);
+  color: var(--fg);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}

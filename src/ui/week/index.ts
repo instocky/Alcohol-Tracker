@@ -1,14 +1,15 @@
 import { todayLocal } from '../../domain/date';
-import { getEvents } from '../../storage/repo';
-import type { Event } from '../../types';
+import { getEvents, getPresets } from '../../storage/repo';
+import type { Event, Preset } from '../../types';
 import { renderCalendar, renderDayTitle, type CalendarView } from './calendar';
+import { renderQuickAdd, type QuickAddHandle } from './quickAdd';
 
 export function renderWeekScreen(): HTMLElement {
   const screen = document.createElement('section');
   screen.className = 'screen is-active';
   screen.dataset.screen = 'week';
 
-  // Header (range — обновляется внутри calendar)
+  // Header (day title only — range показывает сам calendar)
   const header = document.createElement('header');
   header.className = 'header';
   const titleRow = document.createElement('div');
@@ -16,38 +17,65 @@ export function renderWeekScreen(): HTMLElement {
   titleRow.dataset.role = 'day-title';
   header.append(titleRow);
 
-  // Calendar block: range + 5 ячеек
+  // Calendar block
   const calendarHost = document.createElement('div');
   calendarHost.dataset.role = 'calendar';
 
-  // Body
+  // Body: пока в getbody
   const body = document.createElement('div');
   body.className = 'body';
-  body.innerHTML = `
-    <div class="placeholder">
-      <div class="big">Неделя — T04 ✓</div>
-      <div class="small">Календарь и day title. T06 добавит quick-add / day list / total.</div>
-    </div>
+  const placeholder = document.createElement('div');
+  placeholder.className = 'placeholder';
+  placeholder.innerHTML = `
+    <div class="big">Неделя — T05 ✓</div>
+    <div class="small">Quick-add готов. T06 добавит day list + total.</div>
   `;
+  body.append(placeholder);
 
   screen.append(header, calendarHost, body);
 
+  let selectedDate = todayLocal();
   let events: Event[] = [];
+  let presets: Preset[] = [];
   let cal: CalendarView | null = null;
+  let quickAdd: QuickAddHandle | null = null;
 
-  async function bootstrapCalendar(): Promise<void> {
+  async function refresh(): Promise<void> {
     events = await getEvents();
-    cal = renderCalendar(todayLocal(), events, (newSelected) => {
-      titleRow.innerHTML = '';
-      titleRow.append(renderDayTitle(newSelected));
-    });
-    // Initial day-title
-    titleRow.innerHTML = '';
-    titleRow.append(renderDayTitle(todayLocal()));
-    calendarHost.append(cal.root);
+    if (cal) cal.setEvents(events);
+    if (quickAdd) {
+      // Quick-add не зависит от events, но callbacks нужны после rerender
+    }
+    // Toast
   }
 
-  void bootstrapCalendar();
+  async function bootstrap(): Promise<void> {
+    [events, presets] = await Promise.all([getEvents(), getPresets()]);
+
+    cal = renderCalendar(todayLocal(), events, (newSelected) => {
+      selectedDate = newSelected;
+      paintDayTitle();
+    });
+
+    quickAdd = renderQuickAdd(
+      presets,
+      () => selectedDate,
+      () => {
+        void refresh();
+      },
+    );
+
+    calendarHost.append(cal.root);
+    body.insertBefore(quickAdd.root, placeholder);
+    paintDayTitle();
+  }
+
+  function paintDayTitle(): void {
+    titleRow.innerHTML = '';
+    titleRow.append(renderDayTitle(selectedDate));
+  }
+
+  void bootstrap();
 
   return screen;
 }
