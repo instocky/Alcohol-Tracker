@@ -33,7 +33,7 @@ export function renderSettingsScreen(): HTMLElement {
   }
 
   function buildPresetsSection(): HTMLElement {
-    const handle = renderPresets(() => presets);
+    const handle = renderPresets();
     presetsSection = handle.root;
     return buildSection('Пресеты напитков', handle.root);
   }

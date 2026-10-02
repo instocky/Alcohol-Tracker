@@ -8,11 +8,16 @@ export interface PresetsSectionHandle {
   refresh(): Promise<void>;
 }
 
-export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle {
+export function renderPresets(): PresetsSectionHandle {
   const root = document.createElement('div');
   root.className = 'preset-list';
 
+  // ponytail: own source of truth — outer `presets` in settings/index.ts is stale
+  // (loaded once at init, never updated), so map/filter on it would drop new presets.
+  let current: Preset[] = [];
+
   async function save(next: Preset[]): Promise<void> {
+    current = next;
     await setPresets(next);
     await refresh();
   }
@@ -51,11 +56,11 @@ export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle 
         ? undefined
         : async (): Promise<void> => {
             if (!confirm(`Удалить «${preset.name}»?`)) return;
-            const next = getPresetsSnapshot().filter((p) => p.id !== preset.id);
+            const next = current.filter((p) => p.id !== preset.id);
             await save(next);
           };
       editor = buildEditor(preset, async (updated) => {
-        const next = getPresetsSnapshot().map((p) => (p.id === preset.id ? updated : p));
+        const next = current.map((p) => (p.id === preset.id ? updated : p));
         await save(next);
       }, () => {
         editor?.remove();
@@ -166,14 +171,10 @@ export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle 
     return wrap;
   }
 
-  function getPresetsSnapshot(): Preset[] {
-    return getCurrent();
-  }
-
   async function refresh(): Promise<void> {
     root.innerHTML = '';
-    const presets = await getPresets();
-    for (const p of presets) root.append(presetRow(p));
+    current = await getPresets();
+    for (const p of current) root.append(presetRow(p));
     // Add-row
     const addRow = document.createElement('div');
     addRow.className = 'preset-add';
