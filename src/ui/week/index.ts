@@ -3,13 +3,15 @@ import { getEvents, getPresets } from '../../storage/repo';
 import type { Event, Preset } from '../../types';
 import { renderCalendar, renderDayTitle, type CalendarView } from './calendar';
 import { renderQuickAdd, type QuickAddHandle } from './quickAdd';
+import { renderDayList } from './dayList';
+import { renderTotal } from './total';
+import { renderEmpty } from './empty';
 
 export function renderWeekScreen(): HTMLElement {
   const screen = document.createElement('section');
   screen.className = 'screen is-active';
   screen.dataset.screen = 'week';
 
-  // Header (day title only — range показывает сам calendar)
   const header = document.createElement('header');
   header.className = 'header';
   const titleRow = document.createElement('div');
@@ -17,20 +19,11 @@ export function renderWeekScreen(): HTMLElement {
   titleRow.dataset.role = 'day-title';
   header.append(titleRow);
 
-  // Calendar block
   const calendarHost = document.createElement('div');
   calendarHost.dataset.role = 'calendar';
 
-  // Body: пока в getbody
   const body = document.createElement('div');
   body.className = 'body';
-  const placeholder = document.createElement('div');
-  placeholder.className = 'placeholder';
-  placeholder.innerHTML = `
-    <div class="big">Неделя — T05 ✓</div>
-    <div class="small">Quick-add готов. T06 добавит day list + total.</div>
-  `;
-  body.append(placeholder);
 
   screen.append(header, calendarHost, body);
 
@@ -39,14 +32,30 @@ export function renderWeekScreen(): HTMLElement {
   let presets: Preset[] = [];
   let cal: CalendarView | null = null;
   let quickAdd: QuickAddHandle | null = null;
+  let dayContentHost: HTMLElement | null = null; // entries OR empty
+
+  function paintDayContent(): void {
+    if (!dayContentHost) return;
+    const dayEvents = events.filter((e) => e.date === selectedDate);
+    const next = dayEvents.length === 0
+      ? renderEmpty(selectedDate)
+      : renderDayList(dayEvents, presets, () => void refresh());
+    dayContentHost.replaceWith(next);
+    dayContentHost = next;
+  }
+
+  function paintTotal(): void {
+    const totalHost = body.querySelector<HTMLElement>('[data-role="total"]');
+    if (!totalHost) return;
+    const dayEvents = events.filter((e) => e.date === selectedDate);
+    totalHost.replaceWith(renderTotal(dayEvents));
+  }
 
   async function refresh(): Promise<void> {
     events = await getEvents();
     if (cal) cal.setEvents(events);
-    if (quickAdd) {
-      // Quick-add не зависит от events, но callbacks нужны после rerender
-    }
-    // Toast
+    paintDayContent();
+    paintTotal();
   }
 
   async function bootstrap(): Promise<void> {
@@ -54,7 +63,10 @@ export function renderWeekScreen(): HTMLElement {
 
     cal = renderCalendar(todayLocal(), events, (newSelected) => {
       selectedDate = newSelected;
-      paintDayTitle();
+      titleRow.innerHTML = '';
+      titleRow.append(renderDayTitle(selectedDate));
+      paintDayContent();
+      paintTotal();
     });
 
     quickAdd = renderQuickAdd(
@@ -65,12 +77,11 @@ export function renderWeekScreen(): HTMLElement {
       },
     );
 
-    calendarHost.append(cal.root);
-    body.insertBefore(quickAdd.root, placeholder);
-    paintDayTitle();
-  }
+    dayContentHost = renderEmpty(selectedDate);
+    const totalHost = renderTotal([]);
 
-  function paintDayTitle(): void {
+    calendarHost.append(cal.root);
+    body.append(quickAdd.root, totalHost, dayContentHost);
     titleRow.innerHTML = '';
     titleRow.append(renderDayTitle(selectedDate));
   }
