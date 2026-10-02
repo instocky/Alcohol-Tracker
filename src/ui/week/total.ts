@@ -21,6 +21,7 @@ function pluralRu(n: number): string {
 export function renderTotal(events: ReadonlyArray<Event>): HTMLElement {
   const root = document.createElement('div');
   root.className = 'total';
+  root.dataset.role = 'total';
 
   const left = document.createElement('div');
   left.className = 'left';
