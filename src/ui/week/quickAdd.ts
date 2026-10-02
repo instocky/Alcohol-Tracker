@@ -1,8 +1,10 @@
-import type { Preset } from '../../types';
+import type { Event, Preset } from '../../types';
 import { computePureAlcohol } from '../../domain/calc';
-import { addEvent } from '../../storage/repo';
+import { addEvent, removeEvent } from '../../storage/repo';
 import { makeDebounced } from '../../utils/debounce';
+import { pushLast } from '../../utils/undo';
 import { renderSegmentToggle } from '../components/segmentToggle';
+import { showToast } from '../components/toast';
 
 export interface QuickAddHandle {
   root: HTMLElement;
@@ -97,7 +99,7 @@ export function renderQuickAdd(
       const opt = preset.options[preset.activeOptionIndex];
       if (!opt) return;
       const pure = computePureAlcohol(opt.volume_ml, preset.abv);
-      const event = {
+      const event: Event = {
         id: crypto.randomUUID(),
         date: getSelectedDate(),
         type: preset.id,
@@ -107,6 +109,11 @@ export function renderQuickAdd(
         created_at: new Date().toISOString(),
       };
       await addEvent(event);
+      pushLast({ type: 'add', event });
+      showToast('Запись добавлена', () => {
+        void removeEvent(event.id);
+        onChanged();
+      });
       onChanged();
     });
     plus.addEventListener('click', fire);

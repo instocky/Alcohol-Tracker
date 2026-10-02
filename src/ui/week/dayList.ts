@@ -1,5 +1,7 @@
 import type { Event, Preset } from '../../types';
-import { removeEvent } from '../../storage/repo';
+import { addEvent, removeEvent } from '../../storage/repo';
+import { pushLast } from '../../utils/undo';
+import { showToast } from '../components/toast';
 
 interface GroupedRow {
   type: string;
@@ -101,10 +103,16 @@ export function renderDayList(
     rm.setAttribute('aria-label', 'Удалить запись');
     rm.textContent = '−';
     rm.addEventListener('click', async () => {
-      // Удаляем последнюю запись группы (последний добавленный).
       const lastId = g.ids[g.ids.length - 1];
       if (!lastId) return;
+      const removed = events.find((e) => e.id === lastId);
+      if (!removed) return;
+      pushLast({ type: 'remove', event: removed });
       await removeEvent(lastId);
+      showToast('Запись удалена', () => {
+        void addEvent(removed);
+        onChanged();
+      });
       onChanged();
     });
 

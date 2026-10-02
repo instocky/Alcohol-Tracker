@@ -506,3 +506,43 @@ body {
 .empty .small {
   font-size: 12px;
 }
+
+/* === Toast === */
+
+.toast {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 64px;
+  background: #1f1f1f;
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 5;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.toast .undo {
+  background: transparent;
+  border: none;
+  color: #7dd3a8;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 6px;
+}
