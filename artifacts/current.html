@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Alcohol Tracker — Current (as in brief)</title>
+<style>
+  /* Дословная отрисовка брифа: без тона, без UX-фиксов, без undo, без − */
+  :root {
+    --bg: #ffffff;
+    --fg: #111111;
+    --muted: #6b6b6b;
+    --line: #e5e5e5;
+    --btn-bg: #f4f4f4;
+    --btn-fg: #111111;
+    --today: #111;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #ececec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    color: var(--fg);
+  }
+  .frame {
+    width: 360px;
+    min-height: 600px;
+    margin: 24px auto;
+    background: var(--bg);
+    border: 1px solid #d4d4d4;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  /* Демо-тумблер состояний */
+  .demo-toggle {
+    position: absolute; top: 8px; left: 8px;
+    font-size: 11px; color: #555;
+    background: #fff; border: 1px solid #ccc; padding: 2px 8px;
+    border-radius: 12px; cursor: pointer;
+  }
+  .stage { padding: 16px; }
+  .stage.is-hidden { display: none; }
+
+  /* Header / nav */
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; color: var(--muted);
+    padding: 4px 0 12px;
+  }
+  .nav .arrow { cursor: default; }
+  .nav .arrow.disabled { opacity: 0.35; }
+
+  /* Calendar strip */
+  .calendar {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 6px; margin-bottom: 16px;
+  }
+  .day {
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 6px;
+    cursor: default;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .day .dow { color: var(--muted); display: block; font-size: 11px; }
+  .day .num { font-size: 14px; }
+  .day.is-selected {
+    background: #111; color: #fff;
+  }
+  .day.is-selected .dow { color: rgba(255,255,255,0.7); }
+  .day .today-mark {
+    display: block; font-size: 10px; margin-top: 2px;
+  }
+
+  /* Day title */
+  .day-title {
+    font-size: 16px; font-weight: 600;
+    margin: 4px 0 12px;
+  }
+
+  /* Add rows (per brief) */
+  .add-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed transparent;
+  }
+  .add-row .label { font-size: 14px; }
+  .add-row .add-btn {
+    background: var(--btn-bg); border: 1px solid var(--line);
+    color: var(--btn-fg); padding: 4px 10px; font-size: 12px;
+    border-radius: 4px; cursor: default;
+  }
+
+  /* Entries list */
+  .entries {
+    margin: 12px 0;
+  }
+  .entries .empty {
+    color: var(--muted); font-size: 13px; padding: 8px 0;
+  }
+  .entry {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; padding: 6px 0;
+  }
+  .entry .meta { color: var(--muted); }
+  .entry .g { font-variant-numeric: tabular-nums; }
+
+  /* Total */
+  .total {
+    display: flex; justify-content: space-between;
+    border-top: 1px solid var(--line);
+    padding-top: 8px; margin-top: 8px;
+    font-weight: 600; font-size: 14px;
+  }
+  .total .g { font-variant-numeric: tabular-nums; }
+
+  /* Bottom action row */
+  .quick {
+    display: flex; gap: 6px;
+    margin-top: 16px;
+  }
+  .quick .q {
+    flex: 1; text-align: center;
+    padding: 8px 0;
+    border: 1px solid var(--line); border-radius: 4px;
+    background: var(--btn-bg); font-size: 12px;
+    cursor: default;
+  }
+
+  /* Dev label */
+  .dev-note {
+    text-align: center; padding: 8px;
+    font-size: 10px; color: #888;
+    border-top: 1px solid var(--line); background: #fafafa;
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="demo-toggle" onclick="toggle()">state: <span id="st">empty</span></div>
+
+  <!-- STATE: EMPTY DAY -->
+  <div class="stage" id="stage-empty">
+    <div class="nav">
+      <span class="arrow disabled">‹</span>
+      <span>29 сен – 5 окт 2026</span>
+      <span class="arrow">›</span>
+    </div>
+
+    <div class="calendar">
+      <div class="day"><span class="dow">ПН</span><span class="num">29</span></div>
+      <div class="day"><span class="dow">ВТ</span><span class="num">30</span></div>
+      <div class="day"><span class="dow">СР</span><span class="num">1</span></div>
+      <div class="day is-selected"><span class="dow">ЧТ</span><span class="num">2</span><span class="today-mark">★</span></div>
+      <div class="day"><span class="dow">ПТ</span><span class="num">3</span></div>
+      <div class="day"><span class="dow">СБ</span><span class="num">4</span></div>
+      <div class="day"><span class="dow">ВС</span><span class="num">5</span></div>
+    </div>
+
+    <div class="day-title">Четверг, 2 октября</div>
+
+    <!-- Add section -->
+    <div class="add-row">
+      <span class="label">🥃 Водка</span>
+      <button class="add-btn">+ 50 мл</button>
+    </div>
+    <div class="add-row">
+      <span class="label">🍷 Вино</span>
+      <button class="add-btn">+ 150 мл</button>
+    </div>
+    <div class="add-row">
+      <span class="label">🍺 Пиво</span>
+      <button class="add-btn">+ 450 мл</button>
+    </div>
+    <div class="add-row">
+      <span class="label"></span>
+      <button class="add-btn">+ 330 мл</button>
+    </div>
+
+    <div class="entries">
+      <div class="empty">—</div>
+    </div>
+
+    <!-- Bottom quick add (per brief) -->
+    <div class="quick">
+      <div class="q">+ Водка</div>
+      <div class="q">+ Вино</div>
+      <div class="q">+ Пиво</div>
+    </div>
+
+    <div class="dev-note">соответствует брифу, секция «Добавление» + «Daily view» (empty)</div>
+  </div>
+
+  <!-- STATE: DAY WITH ENTRIES (per brief «Daily view») -->
+  <div class="stage is-hidden" id="stage-filled">
+    <div class="nav">
+      <span class="arrow disabled">‹</span>
+      <span>29 сен – 5 окт 2026</span>
+      <span class="arrow">›</span>
+    </div>
+
+    <div class="calendar">
+      <div class="day"><span class="dow">ПН</span><span class="num">29</span></div>
+      <div class="day"><span class="dow">ВТ</span><span class="num">30</span></div>
+      <div class="day"><span class="dow">СР</span><span class="num">1</span></div>
+      <div class="day is-selected"><span class="dow">ПТ</span><span class="num">3</span><span class="today-mark">★</span></div>
+      <div class="day"><span class="dow">СБ</span><span class="num">4</span></div>
+      <div class="day"><span class="dow">ВС</span><span class="num">5</span></div>
+      <div class="day"><span class="dow">ПН</span><span class="num">6</span></div>
+    </div>
+
+    <div class="day-title">Пятница, 3 октября</div>
+
+    <div class="entries">
+      <div class="entry">
+        <span>🥃 Водка 50 мл × 2</span>
+        <span class="g">31.56 г</span>
+      </div>
+      <div class="entry">
+        <span>🍺 Пиво 450 мл × 1</span>
+        <span class="g">17.75 г</span>
+      </div>
+    </div>
+
+    <div class="total">
+      <span>Итого</span>
+      <span class="g">49.31 г</span>
+    </div>
+
+    <!-- Bottom quick add -->
+    <div class="quick">
+      <div class="q">+ Водка</div>
+      <div class="q">+ Вино</div>
+      <div class="q">+ Пиво</div>
+    </div>
+
+    <div class="dev-note">соответствует брифу, «Daily view»</div>
+  </div>
+</div>
+
+<script>
+  function toggle() {
+    const a = document.getElementById('stage-empty');
+    const b = document.getElementById('stage-filled');
+    const st = document.getElementById('st');
+    if (a.classList.contains('is-hidden')) {
+      a.classList.remove('is-hidden');
+      b.classList.add('is-hidden');
+      st.textContent = 'empty';
+    } else {
+      a.classList.add('is-hidden');
+      b.classList.remove('is-hidden');
+      st.textContent = 'with entries';
+    }
+  }
+</script>
+</body>
+</html>
