@@ -1,21 +1,21 @@
 html,
 body {
   width: 360px;
-  min-height: 600px;
+  height: 600px;
 }
 
 #app {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  min-height: 600px;
+  align-items: stretch;
+  height: 600px;
   background: transparent;
 }
 
 .frame {
   position: relative;
   width: 360px;
-  min-height: 600px;
+  height: 600px;
   background: var(--bg);
   border: 1px solid var(--line-strong);
   border-radius: 12px;
@@ -132,8 +132,8 @@ body {
 }
 
 .calendar .arrow {
-  width: 28px;
-  height: 28px;
+  width: var(--tap);
+  height: var(--tap);
   display: inline-flex;
   align-items: center;
   justify-content: center;

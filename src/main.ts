@@ -40,10 +40,13 @@ function refreshActiveScreen(app: HTMLElement, route: Route): void {
       child.remove();
     }
   }
-  const current = app.querySelector(`[data-screen="${route}"]`);
+  let current = app.querySelector(`[data-screen="${route}"]`);
   if (!current) {
-    app.append(SCREENS[route]());
+    const el = SCREENS[route]();
+    app.append(el);
+    current = el;
   }
+  current.classList.add('is-active');
 }
 
 function refreshNavHighlight(): void {
