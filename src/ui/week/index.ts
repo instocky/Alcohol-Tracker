@@ -84,6 +84,12 @@ export function renderWeekScreen(): HTMLElement {
     body.append(quickAdd.root, totalHost, dayContentHost);
     titleRow.innerHTML = '';
     titleRow.append(renderDayTitle(selectedDate));
+
+    // ponytail: initial hosts смонтированы пустыми (empty / total=0) до загрузки events.
+    // Пересчитываем с реальными данными, иначе первое открытие показывает "Сегодня чисто"
+    // даже если у него есть записи (refresh() ещё не вызывался).
+    paintDayContent();
+    paintTotal();
   }
 
   void bootstrap();
