@@ -1,0 +1,18 @@
+:root {
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --fg: #1a1a1a;
+  --fg-muted: #6b6b6b;
+  --fg-faint: #a3a3a3;
+  --line: #ececec;
+  --line-strong: #d4d4d4;
+  --accent: #0f7a52;
+  --accent-bg: #e8f3ed;
+  --warn: #b66a00;
+  --warn-bg: #fbf1e3;
+  --today: #1a1a1a;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow-pop: 0 8px 24px rgba(0, 0, 0, 0.07);
+  --tap: 36px;
+}

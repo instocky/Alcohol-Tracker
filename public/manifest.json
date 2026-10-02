@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "Alcohol Tracker",
+  "version": "0.1.0",
+  "description": "Local-only alcohol tracking: weekly calendar, quick-add, stats, settings.",
+  "action": {
+    "default_title": "Alcohol Tracker",
+    "default_popup": "index.html"
+  },
+  "permissions": ["storage", "downloads"],
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  }
+}
