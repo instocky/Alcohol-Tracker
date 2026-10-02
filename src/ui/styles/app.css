@@ -772,6 +772,28 @@ body {
   border-color: var(--fg);
 }
 
+.editor-actions .btn-delete {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin-right: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.editor-actions .btn-delete:hover {
+  background: var(--warn-bg);
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
 .history {
   background: var(--surface);
   border: 1px solid var(--line);

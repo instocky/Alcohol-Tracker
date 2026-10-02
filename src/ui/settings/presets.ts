@@ -1,6 +1,8 @@
 import type { Preset } from '../../types';
 import { getPresets, setPresets } from '../../storage/repo';
 
+const BUILTIN_IDS = new Set(['vodka', 'wine', 'beer']);
+
 export interface PresetsSectionHandle {
   root: HTMLElement;
   refresh(): Promise<void>;
@@ -45,6 +47,13 @@ export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle 
         chevron.textContent = '›';
         return;
       }
+      const onDelete = BUILTIN_IDS.has(preset.id)
+        ? undefined
+        : async (): Promise<void> => {
+            if (!confirm(`Удалить «${preset.name}»?`)) return;
+            const next = getPresetsSnapshot().filter((p) => p.id !== preset.id);
+            await save(next);
+          };
       editor = buildEditor(preset, async (updated) => {
         const next = getPresetsSnapshot().map((p) => (p.id === preset.id ? updated : p));
         await save(next);
@@ -52,7 +61,7 @@ export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle 
         editor?.remove();
         editor = null;
         chevron.textContent = '›';
-      });
+      }, onDelete);
       row.after(editor);
       chevron.textContent = '⌄';
     });
@@ -64,6 +73,7 @@ export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle 
     preset: Preset,
     onSave: (p: Preset) => Promise<void>,
     onCancel: () => void,
+    onDelete?: () => Promise<void>,
   ): HTMLElement {
     const wrap = document.createElement('div');
     wrap.className = 'preset-editor';
@@ -114,6 +124,23 @@ export function renderPresets(getCurrent: () => Preset[]): PresetsSectionHandle 
     // Actions
     const actions = document.createElement('div');
     actions.className = 'editor-actions';
+    if (onDelete) {
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'btn-delete';
+      del.setAttribute('aria-label', 'Удалить пресет');
+      del.title = 'Удалить пресет';
+      // ponytail: inline SVG — не зависит от шрифта
+      del.innerHTML =
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+        '<polyline points="3 6 5 6 21 6"/>' +
+        '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>' +
+        '<path d="M10 11v6M14 11v6"/>' +
+        '<path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>' +
+        '</svg>';
+      del.addEventListener('click', () => { void onDelete(); });
+      actions.append(del);
+    }
     const cancel = document.createElement('button');
     cancel.type = 'button';
     cancel.className = 'btn-cancel';
