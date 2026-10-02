@@ -546,3 +546,76 @@ body {
   font-weight: 600;
   padding: 2px 6px;
 }
+
+/* === Stats === */
+
+.screen-heading {
+  padding: 14px 14px 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.stats-period {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--line);
+  border-radius: 8px;
+  margin: 0 14px 14px;
+}
+
+.stats-period button {
+  flex: 1;
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--fg-muted);
+  font-weight: 500;
+}
+
+.stats-period button.is-on {
+  background: var(--surface);
+  color: var(--fg);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+
+.stat-card .stat-lbl {
+  font-size: 11px;
+  color: var(--fg-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.stat-card .stat-val {
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card .stat-val .u {
+  font-size: 12px;
+  color: var(--fg-muted);
+  font-weight: 400;
+  margin-left: 4px;
+}
